@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Trigger
+  m_Shader: {fileID: 4800000, guid: 10c7bbb6265bb410bab94cc3633f8072, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3001
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _GlowMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _ColorSpeed: 0
+    - _Distance: 0.3
+    - _Inner: 0.52
+    - _LineAmount: 3
+    - _LineSize: -0.74
+    - _LineWidth: 0.5
+    - _Outter: 0.52
+    - _SizeA: 0
+    - _SizeB: 0.378
+    - _SizeC: 0.511
+    - _Speed: 0.3
+    - _SpeedOfWave: 2.2
+    - _WaveHeight: 10
+    - _WaveSpeed: -9.96
+    m_Colors:
+    - _Color: {r: 1, g: 0.47450984, b: 1, a: 1}
+    - _Color2: {r: 0.8, g: 1, b: 0.8, a: 1}
+    - _Color3: {r: 0.9490196, g: 0.3372549, b: 0.8980392, a: 1}
+    - _Color4: {r: 0.9490196, g: 0.3372549, b: 0.3372549, a: 1}
+    - _Color5: {r: 0.9490196, g: 0.6666667, b: 0.3372549, a: 1}
+    - _Color6: {r: 0.6745098, g: 0.5019608, b: 0.6431373, a: 1}
+    - _Color7: {r: 0.91764706, g: 0.48235294, b: 0.19215687, a: 1}
+    - _GlowColor: {r: 0, g: 1, b: 0.105882354, a: 1}
