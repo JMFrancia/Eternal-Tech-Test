@@ -8,6 +8,17 @@ namespace Player
 
     public class Movement : Attribute<Controller>//, ISpawnable
     {
+        [Header("Pogo")]
+        [SerializeField] bool pogoMode = false;
+
+        [SerializeField] float basePogoVel = .5f;
+        [SerializeField] float pogoForwardVel = 1f;
+        [SerializeField] float pogoVelMult = 1.3f;
+        [SerializeField] float pogoBounceTime = .2f;
+        [SerializeField] float pogoInputWindow = .2f;
+
+
+
         [Header("julian new mov")]
         [SerializeField] Transform sub;
         Rigidbody rb;
@@ -43,7 +54,8 @@ namespace Player
             walking,
             running,
             jumping,
-            falling
+            falling,
+            pogo
         }
         [SerializeField] MoveState currentMoveState;
         public bool changingCOM;
@@ -116,6 +128,10 @@ namespace Player
         float walkRunThreshold = 0.9f;
         MoveState GetMoveState()//mainly for animations and other stuff
         {
+            if (pogoMode) {
+                return MoveState.pogo;
+            }
+
             MoveState stateToSet;
             if (!isGrounded || hasJumped)
             {
@@ -178,7 +194,7 @@ namespace Player
                     hasJumped = false;
 
 
-                doJump = doingSwipe && input.GetUp() && isGrounded;
+                doJump = doingSwipe && input.GetUp() && isGrounded && !pogoMode;
 
                 //handle some change COM stuff
                 CenterOfMass newCOM = GetCurrentCenterOfMass();
@@ -397,6 +413,13 @@ namespace Player
                 }
                 worldVel = transform.TransformVector(localVel);
             }
+
+
+            if (pogoMode && isGrounded) {
+                localVel.z = 0f;
+            }
+
+
 
             //do actual movement
             rb.MovePosition(basePos + worldVel);
