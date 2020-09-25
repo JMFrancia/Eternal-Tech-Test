@@ -22,6 +22,9 @@ public class GestureEventData
 
     public float lifetime;
 
+    bool touching = false;
+    float touchLifetime = 0f;
+
     public int touchCount
     {
         get
@@ -138,7 +141,19 @@ public class GestureEventData
     public void Update()
     {
         if (touches == null || touches.Length == 0)
+        {
+            if (touching)
+            {
+                touching = false;
+                EventManager.TriggerEvent("ReleaseTouch", (float)touchLifetime);
+            }
             return;
+        }
+        if (!touching)
+        {
+            touching = true;
+            EventManager.TriggerEvent("StartTouch");
+        }
 
         for (int i = 0; i < touches.Length; i++)
             UpdateTouch(i);
@@ -160,6 +175,7 @@ public class GestureEventData
         delta0 = delta;
 
         lifetime += Time.deltaTime;
+        touchLifetime += Time.deltaTime;
     }
 
     void SetTouch(int index)
@@ -170,7 +186,7 @@ public class GestureEventData
 #if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
 
                 var t = Input.GetTouch(index);
-                
+
                 touch.position = t.position;
                 touch.delta = Vector3.zero;
 
@@ -196,13 +212,13 @@ public class GestureEventData
                 touch.position = t.position;
                 touch.delta = t.deltaPosition;
 
-                if(t.phase == TouchPhase.Began) 
+                if(t.phase == TouchPhase.Began)
                     touch.state = InputEventData.State.Began;
-                
-                else if(t.phase == TouchPhase.Stationary || t.phase == TouchPhase.Moved) 
+
+                else if(t.phase == TouchPhase.Stationary || t.phase == TouchPhase.Moved)
                     touch.state = InputEventData.State.Continue;
-                
-                else if(t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled) 
+
+                else if(t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled)
                     touch.state = InputEventData.State.Cancel;
 
             // Editor/desktop input
@@ -320,7 +336,7 @@ public class GestureHandler : Singleton<GestureHandler>
         else if (Input.GetKey(KeyCode.X) || Input.GetKeyUp(KeyCode.X)) // Swipe anchor
             ++touches;
 
-        if (Input.GetMouseButton(0) || Input.GetMouseButtonUp(0)) // Last touch 
+        if (Input.GetMouseButton(0) || Input.GetMouseButtonUp(0)) // Last touch
             ++touches;
 
 #else
@@ -349,6 +365,11 @@ public class GestureHandler : Singleton<GestureHandler>
 
         if (gesture != null)
             gesture.Update(); // Update active gesture
+
+        if (GetTap())
+        {
+            EventManager.TriggerEvent("Tap");
+        }
     }
 
     InputEventData[] FetchTouches()

@@ -17,6 +17,57 @@ namespace Player
         [SerializeField] float pogoBounceTime = .2f;
         [SerializeField] float pogoInputWindow = .2f;
 
+        bool oldIsGrounded = true;
+        bool oldPogoMode = false;
+        int bounceCount = 0;
+        float pogoTime = 0f;
+        float groundStart;
+        float groundEnd;
+        bool waitingOnBounce = false;
+
+        private void OnEnable()
+        {
+            EventManager.StartListening("StartTouch", OnPressed);
+            EventManager.StartListening("ReleaseTouch", OnReleased);
+        }
+
+        private void OnDisable()
+        {
+            EventManager.StopListening("StartTouch", OnPressed);
+            EventManager.StopListening("ReleaseTouch", OnReleased);
+        }
+
+        void OnPressed() { }
+
+        void OnReleased() { }
+
+        void OnPogoLaunched() {
+            groundEnd = pogoTime;
+        }
+
+        void OnPogoGrounded() {
+            groundStart = pogoTime;
+        }
+
+
+        void CheckPogoBounce() {
+            if (!waitingOnBounce) {
+                StartCoroutine(TimedPogoBounce());
+            }
+        } 
+
+        IEnumerator TimedPogoBounce() {
+            waitingOnBounce = true;
+            yield return new WaitForSeconds(pogoBounceTime);
+            PogoBounce();
+            waitingOnBounce = false;
+        }
+
+        void PogoBounce() {
+            Debug.Log("Bounce!");
+            localVel.y = basePogoVel * Mathf.Pow(pogoVelMult, bounceCount + 1);
+            localVel.z = finalJoystickVel * movSpeed;
+        }
 
 
         [Header("julian new mov")]
@@ -117,6 +168,13 @@ namespace Player
         int activePlanet = 1;
         protected override void onUpdate()
         {
+            if (oldPogoMode != pogoMode)
+            {
+                pogoTime = 0f;
+                bounceCount = 0;
+                oldPogoMode = pogoMode;
+            }
+
             currentMoveState = GetMoveState();
 
             ManageSwipe();
@@ -190,11 +248,36 @@ namespace Player
             if (canMove)
             {
                 isGrounded = SetIsGrounded();
+
+                if (pogoMode && oldIsGrounded != isGrounded) {
+                    if (isGrounded) {
+                        OnPogoGrounded();
+                    } else
+                    {
+                        OnPogoLaunched();
+                    }
+                    oldIsGrounded = isGrounded;
+                }
+
                 if (hasJumped && !isGrounded)
                     hasJumped = false;
 
+                if (isGrounded)
+                {
+                    if (pogoMode)
+                    {
+                        CheckPogoBounce();
+                        doJump = false;
+                    }
+                    else
+                    {
+                        doJump = doingSwipe && input.GetUp();
+                    }
+                }
+                else {
+                    doJump = false;
+                }
 
-                doJump = doingSwipe && input.GetUp() && isGrounded && !pogoMode;
 
                 //handle some change COM stuff
                 CenterOfMass newCOM = GetCurrentCenterOfMass();
@@ -202,6 +285,7 @@ namespace Player
                     changingCOM = true;
                 if (isGrounded)
                     changingCOM = false;
+                Debug.Log("changingCom: " + changingCOM);
                 currentCenterOfMass = newCOM;
 
 
@@ -351,7 +435,12 @@ namespace Player
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
 
+            if (pogoMode) {
+                //Debug.Log("Freeze here");
+            }
+
             Vector3 basePos = rb.position;
+
             if (!isGrounded || hasJumped)
             {
                 //localVel = transform.InverseTransformVector(worldVel);
@@ -379,7 +468,7 @@ namespace Player
                 //vel.z += joystick.Direction.magnitude * movSpeed * 0.05f;//so you only change slightly when in air
                 //vel.z = Mathf.Clamp(vel.z, -joystick.Direction.magnitude * movSpeed, joystick.Direction.magnitude * movSpeed);//so it doesnt speed up to much
             }
-            else
+            else if (!pogoMode)
             {
                 localVel = Vector3.zero;
 
