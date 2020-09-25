@@ -11,8 +11,8 @@ namespace Player
         [Header("Pogo")]
         [SerializeField] bool pogoMode = false;
 
+        [SerializeField] UnityEngine.UI.Text pogoBounceLevelText;
         [SerializeField] float basePogoVel = .5f;
-        [SerializeField] float pogoForwardVel = 1f;
         [SerializeField] float pogoVelMult = 1.3f;
         [SerializeField] float pogoBounceTime = .2f;
         [SerializeField] float pogoInputWindow = .2f;
@@ -20,26 +20,61 @@ namespace Player
         bool oldIsGrounded = true;
         bool oldPogoMode = false;
         int bounceCount = 0;
+        int maxBounceCount = 3;
         float pogoTime = 0f;
         float groundStart;
         float groundEnd;
         bool waitingOnBounce = false;
+        bool bounced = false;
+        Coroutine pogoCoroutine;
 
         private void OnEnable()
         {
-            EventManager.StartListening("StartTouch", OnPressed);
             EventManager.StartListening("ReleaseTouch", OnReleased);
         }
 
         private void OnDisable()
         {
-            EventManager.StopListening("StartTouch", OnPressed);
             EventManager.StopListening("ReleaseTouch", OnReleased);
         }
 
-        void OnPressed() { }
+        void OnReleased(float timeHeld) {
+            if (!pogoMode)
+                return;
+            Debug.Log("Release: " + timeHeld);
 
-        void OnReleased() { }
+            if (timeHeld > 1.5f) {
+                return;
+            }
+
+            float timeStart = pogoTime - timeHeld;
+            float timeReleased = pogoTime;
+
+            bool goodStart = (groundStart - pogoInputWindow) <= timeStart && timeStart <= (groundStart + pogoInputWindow);
+            bool goodRelease = (groundEnd - pogoInputWindow) <= timeReleased && timeReleased <= (groundEnd + pogoInputWindow);
+
+            if (goodStart && goodRelease)
+            {
+                bounceCount = Mathf.Min(bounceCount + 1, maxBounceCount);
+                Debug.Log("Good bounce!");
+                UpdatePogoBounceLevelText();
+
+                if (waitingOnBounce)
+                {
+                    StopCoroutine(pogoCoroutine);
+                    PogoBounce();
+                }
+            }
+            else {
+                Debug.Log("Bad bounce");
+                bounceCount = Mathf.Max(bounceCount - 1, 0);
+                UpdatePogoBounceLevelText();
+            }
+        }
+
+        void UpdatePogoBounceLevelText() {
+            pogoBounceLevelText.text = $"{bounceCount} / {maxBounceCount}";
+        }
 
         void OnPogoLaunched() {
             groundEnd = pogoTime;
@@ -50,12 +85,34 @@ namespace Player
             waitingOnBounce = false;
         }
 
+        void UpdatePogo() {
+            pogoTime += Time.deltaTime;
+
+            if (bounced && (pogoTime - groundEnd) > pogoInputWindow) {
+                bounced = false;
+            }
+
+            if (oldPogoMode != pogoMode)
+            {
+                ResetPogo();
+            }
+
+        }
+
+        void ResetPogo() {
+            pogoTime = 0f;
+            bounceCount = 0;
+            waitingOnBounce = false;
+            bounced = false;
+            oldPogoMode = pogoMode;
+        }
+
 
         void CheckPogoBounce() {
             if (!waitingOnBounce)
             {
                 waitingOnBounce = true;
-                StartCoroutine(TimedPogoBounce());
+                pogoCoroutine = StartCoroutine(TimedPogoBounce());
             }
         } 
 
@@ -67,6 +124,7 @@ namespace Player
         void PogoBounce() {
             localVel.y = basePogoVel * Mathf.Pow(pogoVelMult, bounceCount + 1);
             localVel.z = finalJoystickVel * movSpeed;
+            bounced = true;
         }
 
 
@@ -168,13 +226,7 @@ namespace Player
         int activePlanet = 1;
         protected override void onUpdate()
         {
-            if (oldPogoMode != pogoMode)
-            {
-                pogoTime = 0f;
-                bounceCount = 0;
-                waitingOnBounce = false;
-                oldPogoMode = pogoMode;
-            }
+            UpdatePogo();
 
             currentMoveState = GetMoveState();
 

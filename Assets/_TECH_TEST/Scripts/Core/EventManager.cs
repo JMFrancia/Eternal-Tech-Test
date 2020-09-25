@@ -65,20 +65,20 @@ public class EventManager
 	}
 
 
-	public static void StartListening(string eventName, UnityAction<int> listener)
-	{
-		UnityEventInt thisEvent = null;
-		if (Instance.eventDictionaryInt.TryGetValue(eventName, out thisEvent))
-		{
-			thisEvent.AddListener(listener);
-		}
-		else
-		{
-			thisEvent = new UnityEventInt();
-			thisEvent.AddListener(listener);
-			Instance.eventDictionaryInt.Add(eventName, thisEvent);
-		}
-	}
+	//public static void StartListening(string eventName, UnityAction<int> listener)
+	//{
+	//	UnityEventInt thisEvent = null;
+	//	if (Instance.eventDictionaryInt.TryGetValue(eventName, out thisEvent))
+	//	{
+	//		thisEvent.AddListener(listener);
+	//	}
+	//	else
+	//	{
+	//		thisEvent = new UnityEventInt();
+	//		thisEvent.AddListener(listener);
+	//		Instance.eventDictionaryInt.Add(eventName, thisEvent);
+	//	}
+	//}
 
 	public static void StartListening(string eventName, UnityAction<Vector3> listener)
 	{
@@ -137,18 +137,18 @@ public class EventManager
 		}
 	}
 
-	public static void StopListening(string eventName, UnityAction<int> listener)
-	{
-		if (Instance == null)
-		{
-			return;
-		}
-		UnityEventInt thisEvent = null;
-		if (Instance.eventDictionaryInt.TryGetValue(eventName, out thisEvent))
-		{
-			thisEvent.RemoveListener(listener);
-		}
-	}
+	//public static void StopListening(string eventName, UnityAction<int> listener)
+	//{
+	//	if (Instance == null)
+	//	{
+	//		return;
+	//	}
+	//	UnityEventInt thisEvent = null;
+	//	if (Instance.eventDictionaryInt.TryGetValue(eventName, out thisEvent))
+	//	{
+	//		thisEvent.RemoveListener(listener);
+	//	}
+	//}
 
 	public static void StopListening(string eventName, UnityAction<Vector3> listener)
 	{

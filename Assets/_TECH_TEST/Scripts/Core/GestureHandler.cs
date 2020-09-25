@@ -23,7 +23,6 @@ public class GestureEventData
     public float lifetime;
 
     bool touching = false;
-    float touchLifetime = 0f;
 
     public int touchCount
     {
@@ -145,7 +144,6 @@ public class GestureEventData
             if (touching)
             {
                 touching = false;
-                EventManager.TriggerEvent("ReleaseTouch", (float)touchLifetime);
             }
             return;
         }
@@ -175,7 +173,6 @@ public class GestureEventData
         delta0 = delta;
 
         lifetime += Time.deltaTime;
-        touchLifetime += Time.deltaTime;
     }
 
     void SetTouch(int index)
@@ -295,6 +292,7 @@ public class GestureHandler : Singleton<GestureHandler>
 
 
     float tapThreshold = .167f;
+    float touchLifetime = 0f;
     int consecutiveTaps = 0;
     public int tapMoveThreshold = 87;
 
@@ -344,6 +342,10 @@ public class GestureHandler : Singleton<GestureHandler>
 #endif
 
         touches_1 = touches;
+        if (touches > 0)
+        {
+            touchLifetime += Time.deltaTime;
+        }
         if (touches_1 != touches_0)
         {
             if (touches > 0)
@@ -358,7 +360,11 @@ public class GestureHandler : Singleton<GestureHandler>
                 }
             }
             else
+            {
                 ClearTouches();
+                EventManager.TriggerEvent("ReleaseTouch", touchLifetime);
+                touchLifetime = 0f;
+            }
         }
         touches_0 = touches_1;
 
