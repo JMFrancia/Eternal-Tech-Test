@@ -368,7 +368,6 @@ public class GestureHandler : Singleton<GestureHandler>
         }
         touches_0 = touches_1;
 
-
         if (gesture != null)
             gesture.Update(); // Update active gesture
 

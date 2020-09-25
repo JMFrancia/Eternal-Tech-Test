@@ -38,12 +38,23 @@ namespace Player
             EventManager.StopListening("ReleaseTouch", OnReleased);
         }
 
+        private void OnTriggerEnter(Collider other)
+        {
+            if (pogoMode && other.CompareTag("PogoTarget")) {
+                Destroy(other.gameObject);
+                maxBounceCount++;
+                UpdatePogoBounceLevelText();
+                Debug.Log("Max bounce increased!");
+            }
+        }
+
         void OnReleased(float timeHeld) {
             if (!pogoMode)
                 return;
             Debug.Log("Release: " + timeHeld);
 
-            if (timeHeld > 1.5f) {
+            //Guessing intention was direction
+            if (timeHeld > 1f) {
                 return;
             }
 
