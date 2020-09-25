@@ -47,24 +47,24 @@ namespace Player
 
         void OnPogoGrounded() {
             groundStart = pogoTime;
+            waitingOnBounce = false;
         }
 
 
         void CheckPogoBounce() {
-            if (!waitingOnBounce) {
+            if (!waitingOnBounce)
+            {
+                waitingOnBounce = true;
                 StartCoroutine(TimedPogoBounce());
             }
         } 
 
         IEnumerator TimedPogoBounce() {
-            waitingOnBounce = true;
             yield return new WaitForSeconds(pogoBounceTime);
             PogoBounce();
-            waitingOnBounce = false;
         }
 
         void PogoBounce() {
-            Debug.Log("Bounce!");
             localVel.y = basePogoVel * Mathf.Pow(pogoVelMult, bounceCount + 1);
             localVel.z = finalJoystickVel * movSpeed;
         }
@@ -172,6 +172,7 @@ namespace Player
             {
                 pogoTime = 0f;
                 bounceCount = 0;
+                waitingOnBounce = false;
                 oldPogoMode = pogoMode;
             }
 
@@ -285,7 +286,6 @@ namespace Player
                     changingCOM = true;
                 if (isGrounded)
                     changingCOM = false;
-                Debug.Log("changingCom: " + changingCOM);
                 currentCenterOfMass = newCOM;
 
 
@@ -435,10 +435,6 @@ namespace Player
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
 
-            if (pogoMode) {
-                //Debug.Log("Freeze here");
-            }
-
             Vector3 basePos = rb.position;
 
             if (!isGrounded || hasJumped)
@@ -468,7 +464,7 @@ namespace Player
                 //vel.z += joystick.Direction.magnitude * movSpeed * 0.05f;//so you only change slightly when in air
                 //vel.z = Mathf.Clamp(vel.z, -joystick.Direction.magnitude * movSpeed, joystick.Direction.magnitude * movSpeed);//so it doesnt speed up to much
             }
-            else if (!pogoMode)
+            else
             {
                 localVel = Vector3.zero;
 
@@ -487,18 +483,24 @@ namespace Player
                 else
                     localVel.z = finalJoystickVel * movSpeed;
 
-                if (doJump)
+                if (pogoMode)
                 {
                     hasJumped = true;
-                    localVel.y = jumpStrengthVer * swipeSpeed;//do jump
-                    localVel.z = movSpeed * jumpStrengthHor * swipeSpeed;
                 }
-                else if (doBounce)
-                {
-                    doBounce = false;
-                    hasJumped = true;
-                    localVel.y = bounceStrength;
-                    localVel.z *= 1.2f;
+                else {
+                    if (doJump)
+                    {
+                        hasJumped = true;
+                        localVel.y = jumpStrengthVer * swipeSpeed;//do jump
+                        localVel.z = movSpeed * jumpStrengthHor * swipeSpeed;
+                    }
+                    else if (doBounce)
+                    {
+                        doBounce = false;
+                        hasJumped = true;
+                        localVel.y = bounceStrength;
+                        localVel.z *= 1.2f;
+                    }
                 }
                 worldVel = transform.TransformVector(localVel);
             }
