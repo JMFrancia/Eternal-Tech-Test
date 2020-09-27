@@ -64,7 +64,8 @@ namespace Player
             bool goodStart = (groundStart - pogoInputWindow) <= timeStart && timeStart <= (groundStart + pogoInputWindow);
             bool goodRelease = (groundEnd - pogoInputWindow) <= timeReleased && timeReleased <= (groundEnd + pogoInputWindow);
 
-            if (goodStart && goodRelease)
+            //if (goodStart && goodRelease)
+            if(goodRelease)
             {
                 bounceCount = Mathf.Min(bounceCount + 1, maxBounceCount);
                 Debug.Log("Good bounce!");
