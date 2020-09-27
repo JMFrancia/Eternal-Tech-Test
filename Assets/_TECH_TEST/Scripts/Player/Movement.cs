@@ -16,6 +16,11 @@ namespace Player
         [SerializeField] float pogoVelMult = 1.3f;
         [SerializeField] float pogoBounceTime = .2f;
         [SerializeField] float pogoInputWindow = .2f;
+        [SerializeField] int godBounce = 3;
+        [SerializeField] float godSequenceStartDelay = 1.5f;
+
+        [SerializeField] GodSceneManager godSceneManager;
+        [SerializeField] CameraManager cameraManager;
 
         bool oldIsGrounded = true;
         bool oldPogoMode = false;
@@ -71,17 +76,36 @@ namespace Player
                 Debug.Log("Good bounce!");
                 UpdatePogoBounceLevelText();
 
+                if (bounceCount == godBounce) {
+                    StartCoroutine(PlayGodSequence(godSequenceStartDelay));
+                }
+                
                 if (waitingOnBounce)
                 {
                     StopCoroutine(pogoCoroutine);
                     PogoBounce();
                 }
+
             }
             else {
                 Debug.Log("Bad bounce");
                 bounceCount = Mathf.Max(bounceCount - 1, 0);
                 UpdatePogoBounceLevelText();
             }
+        }
+
+        IEnumerator PlayGodSequence(float delay) {
+            yield return new WaitForSeconds(delay);
+            godSceneManager.gameObject.SetActive(true);
+            godSceneManager.BeginSequence((System.Action)(() => {
+                gameObject.SetActive(true);
+                cameraManager.Set(mainCam);
+                Debug.Log("setting main cam");
+                godSceneManager.gameObject.SetActive(false);
+                pogoMode = false;
+                ResetPogo();
+            }));
+            gameObject.SetActive(false);
         }
 
         void UpdatePogoBounceLevelText() {
