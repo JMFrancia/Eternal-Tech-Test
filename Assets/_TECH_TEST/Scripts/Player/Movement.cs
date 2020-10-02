@@ -72,11 +72,10 @@ namespace Player
             //if (goodStart && goodRelease)
             if(goodRelease)
             {
-                bounceCount = Mathf.Min(bounceCount + 1, maxBounceCount);
                 Debug.Log("Good bounce!");
-                UpdatePogoBounceLevelText();
 
                 if (bounceCount == godBounce) {
+                    basePogoVel *= 10f;
                     StartCoroutine(PlayGodSequence(godSequenceStartDelay));
                 }
                 
@@ -85,6 +84,8 @@ namespace Player
                     StopCoroutine(pogoCoroutine);
                     PogoBounce();
                 }
+                bounceCount = Mathf.Min(bounceCount + 1, maxBounceCount);
+                UpdatePogoBounceLevelText();
 
             }
             else {
@@ -97,6 +98,7 @@ namespace Player
         IEnumerator PlayGodSequence(float delay) {
             yield return new WaitForSeconds(delay);
             godSceneManager.gameObject.SetActive(true);
+            basePogoVel /= 10f;
             godSceneManager.BeginSequence((System.Action)(() => {
                 gameObject.SetActive(true);
                 cameraManager.Set(mainCam);
