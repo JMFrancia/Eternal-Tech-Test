@@ -45,6 +45,12 @@ namespace Player
             SelectCharacter();
         }
 
+        public void ChangeAvatar(GameObject newCharacterObject, float scale) {
+            pr_character = newCharacterObject;
+            characterScale = Vector3.one * scale;
+            SelectCharacter();
+        }
+
         // Instantiate character prefab from character instance
         public void SelectCharacter()
         {

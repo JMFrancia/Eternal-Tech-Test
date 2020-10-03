@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace Player
 {
@@ -11,16 +12,23 @@ namespace Player
         [Header("Pogo")]
         [SerializeField] bool pogoMode = false;
 
-        [SerializeField] UnityEngine.UI.Text pogoBounceLevelText;
+        [SerializeField] Text pogoBounceLevelText;
         [SerializeField] float basePogoVel = .5f;
         [SerializeField] float pogoVelMult = 1.3f;
         [SerializeField] float pogoBounceTime = .2f;
         [SerializeField] float pogoInputWindow = .2f;
         [SerializeField] int godBounce = 3;
         [SerializeField] float godSequenceStartDelay = 1.5f;
+        [SerializeField] float parachuteHeight = 10f;
+        [SerializeField] bool parachuteMode = false;
+        [SerializeField] float parachuteGravityMultiplier = .9f;
 
+        [SerializeField] Text heightText;
         [SerializeField] GodSceneManager godSceneManager;
         [SerializeField] CameraManager cameraManager;
+        [SerializeField] Transform world;
+        [SerializeField] GameObject jamieObj;
+        [SerializeField] GameObject pogoJamieObj;
 
         bool oldIsGrounded = true;
         bool oldPogoMode = false;
@@ -31,7 +39,9 @@ namespace Player
         float groundEnd;
         bool waitingOnBounce = false;
         bool bounced = false;
+        Vector3 lastGroundedPos; 
         Coroutine pogoCoroutine;
+        Appearance appearance;
 
         private void OnEnable()
         {
@@ -100,10 +110,17 @@ namespace Player
             godSceneManager.gameObject.SetActive(true);
             basePogoVel /= 10f;
             godSceneManager.BeginSequence((System.Action)(() => {
+                localVel.y = 5f;
+                parachuteMode = true;
                 gameObject.SetActive(true);
                 cameraManager.Set(mainCam);
                 Debug.Log("setting main cam");
                 godSceneManager.gameObject.SetActive(false);
+                Vector3 parachutePos = lastGroundedPos + (lastGroundedPos - world.position).normalized * parachuteHeight;
+                Debug.Log("Caculated parachute pos: " + parachutePos);
+                Debug.Log("moving to: " + parachutePos);
+                transform.position = parachutePos;
+
                 pogoMode = false;
                 ResetPogo();
             }));
@@ -121,10 +138,15 @@ namespace Player
         void OnPogoGrounded() {
             groundStart = pogoTime;
             waitingOnBounce = false;
+            lastGroundedPos = transform.position;
         }
 
         void UpdatePogo() {
-            pogoTime += Time.deltaTime;
+            if (pogoMode)
+            {
+                pogoTime += Time.deltaTime;
+                heightText.text = (transform.position - lastGroundedPos).magnitude.ToString();
+            }
 
             if (bounced && (pogoTime - groundEnd) > pogoInputWindow) {
                 bounced = false;
@@ -134,7 +156,6 @@ namespace Player
             {
                 ResetPogo();
             }
-
         }
 
         void ResetPogo() {
@@ -143,8 +164,15 @@ namespace Player
             waitingOnBounce = false;
             bounced = false;
             oldPogoMode = pogoMode;
+            if (pogoMode)
+            {
+                appearance.ChangeAvatar(pogoJamieObj, .3f);
+            }
+            else
+            {
+                appearance.ChangeAvatar(jamieObj, .25f);
+            }
         }
-
 
         void CheckPogoBounce() {
             if (!waitingOnBounce)
@@ -228,6 +256,7 @@ namespace Player
             Raycaster = RaycastHandler.Instance;
 
             rb = GetComponent<Rigidbody>();
+            appearance = GetComponent<Appearance>();
         }
 
         CenterOfMass[] allCentersOfMass;
@@ -339,6 +368,8 @@ namespace Player
             if (canMove)
             {
                 isGrounded = SetIsGrounded();
+                if (isGrounded)
+                    parachuteMode = false;
 
                 if (pogoMode && oldIsGrounded != isGrounded) {
                     if (isGrounded) {
@@ -539,6 +570,9 @@ namespace Player
                 if (!changingCOM)
                 {
                     localVel.y -= gravStrength * comOffset;//gravity
+                    if (parachuteMode) {
+                        localVel.y *= parachuteGravityMultiplier;
+                    }
                     localVel.z += joystick.Direction.magnitude * movSpeed * 0.08f;//so you only change slightly when in air
                     localVel.z = Mathf.Clamp(localVel.z, -movSpeed, movSpeed);//so it doesnt speed up to much
                     worldVel = transform.TransformVector(localVel);
@@ -546,7 +580,14 @@ namespace Player
                 }
                 else
                 {
-                    worldVel -= gravDir.normalized * gravStrength * comOffset * 2f;//grav
+                    if (parachuteMode)
+                    {
+                        worldVel -= gravDir.normalized * gravStrength * comOffset * 2f * parachuteGravityMultiplier;//grav
+                    }
+                    else
+                    {
+                        worldVel -= gravDir.normalized * gravStrength * comOffset * 2f;//grav
+                    }
                     worldVel -= worldVel.normalized * worldVel.sqrMagnitude * 0.01f;//drag
                 }
 
