@@ -11,6 +11,12 @@ namespace Player
 
     public class Sounds : AudioHandler
     {
+        [Header("Pogo")]
+        public AudioClip[] boings;
+        public AudioClip megaBoing;
+        public AudioClip badBoing;
+        public AudioClip goodBoing;
+
         [Header("Movement")]
         public AudioClip[] footsteps;
         public AudioClip jump;
@@ -35,5 +41,24 @@ namespace Player
                 footstepTimer = 0;
             }
         }
+
+        public void RegularBounce() {
+            PlayRandomSoundRandomPitch(boings, 1f);
+        }
+
+        public void BadBounce() {
+            PlaySound(badBoing, 1f);
+        }
+
+        public void GoodBounce()
+        {
+            PlaySound(goodBoing, 1f);
+        }
+
+        public void GodBounce()
+        {
+            PlaySound(megaBoing, 1f);
+        }
+
     }
 }

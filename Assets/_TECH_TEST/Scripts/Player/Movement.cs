@@ -42,6 +42,15 @@ namespace Player
         Vector3 lastGroundedPos; 
         Coroutine pogoCoroutine;
         Appearance appearance;
+        Sounds sounds;
+        PogoBounceState bounceState = PogoBounceState.Neutral;
+
+        enum PogoBounceState {
+            Good,
+            Bad,
+            Neutral,
+            Mega
+        }
 
         private void OnEnable()
         {
@@ -83,9 +92,11 @@ namespace Player
             if(goodRelease)
             {
                 Debug.Log("Good bounce!");
+                bounceState = PogoBounceState.Good;
 
                 if (bounceCount == godBounce) {
                     basePogoVel *= 10f;
+                    bounceState = PogoBounceState.Mega;
                     StartCoroutine(PlayGodSequence(godSequenceStartDelay));
                 }
                 
@@ -100,6 +111,7 @@ namespace Player
             }
             else {
                 Debug.Log("Bad bounce");
+                bounceState = PogoBounceState.Bad;
                 bounceCount = Mathf.Max(bounceCount - 1, 0);
                 UpdatePogoBounceLevelText();
             }
@@ -191,6 +203,21 @@ namespace Player
             localVel.y = basePogoVel * Mathf.Pow(pogoVelMult, bounceCount + 1);
             localVel.z = finalJoystickVel * movSpeed;
             bounced = true;
+            switch (bounceState) {
+                case PogoBounceState.Neutral:
+                    sounds.RegularBounce();
+                    break;
+                case PogoBounceState.Good:
+                    sounds.GoodBounce();
+                    break;
+                case PogoBounceState.Bad:
+                    sounds.BadBounce();
+                    break;
+                case PogoBounceState.Mega:
+                    sounds.GodBounce();
+                    break;
+            }
+            bounceState = PogoBounceState.Neutral;
         }
 
 
@@ -257,6 +284,7 @@ namespace Player
 
             rb = GetComponent<Rigidbody>();
             appearance = GetComponent<Appearance>();
+            sounds = GetComponent<Sounds>();
         }
 
         CenterOfMass[] allCentersOfMass;
@@ -266,7 +294,6 @@ namespace Player
             animations = controller.Animation;
 
             Gestures = GestureHandler.Instance;
-
 
             capsuleCol = GetComponent<CapsuleCollider>();
             mainCam = Camera.main;
