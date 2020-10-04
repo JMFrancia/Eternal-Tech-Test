@@ -7,14 +7,22 @@ public class PogoTargetManager : MonoBehaviour
 
     public static PogoTarget ActiveTarget { get; private set; }
 
-    public List<PogoTarget> targets;
+    float baseHeight = 8f;
+
+    List<PogoTarget> targets;
     CenterOfMass world;
     
     private void Awake()
     {
         world = GameObject.FindGameObjectWithTag("World").GetComponent<CenterOfMass>();
         targets = new List<PogoTarget>(GetComponentsInChildren<PogoTarget>());
-        targets.Sort(CompareTargetHeight);
+
+        for (int n = 0; n < targets.Count; n++) {
+            targets[n].transform.position += (targets[n].transform.position - world.transform.position).normalized * (baseHeight * Mathf.Pow(1.6f, n + 2));
+        }
+
+        //targets.Sort(CompareTargetHeight);
+
         ActiveTarget = targets[0];
         for (int n = 1; n < targets.Count; n++) {
             targets[n].gameObject.SetActive(false);

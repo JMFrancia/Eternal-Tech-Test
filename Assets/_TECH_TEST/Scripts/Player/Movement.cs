@@ -9,8 +9,9 @@ namespace Player
 
     public class Movement : Attribute<Controller>//, ISpawnable
     {
+        public bool pogoMode { get; private set; } = false;
+
         [Header("Pogo")]
-        [SerializeField] bool pogoMode = false;
 
         [SerializeField] Text pogoBounceLevelText;
         [SerializeField] float basePogoVel = .5f;
@@ -24,7 +25,6 @@ namespace Player
         [SerializeField] float parachuteGravityMultiplier = .9f;
 
         [SerializeField] Text heightText;
-        [SerializeField] Text maxHeightText;
         [SerializeField] GodSceneManager godSceneManager;
         [SerializeField] CameraManager cameraManager;
         [SerializeField] Transform world;
@@ -42,6 +42,8 @@ namespace Player
         float maxHeight;
         bool waitingOnBounce = false;
         bool bounced = false;
+        float originalCamRadius;
+
         Vector3 lastGroundedPos; 
         Coroutine pogoCoroutine;
         Appearance appearance;
@@ -119,6 +121,7 @@ namespace Player
                 if (newBounceCount != bounceCount)
                 {
                     bounceCount = newBounceCount;
+                    camRadius *= 1.1f;
                     UpdatePogoBounceLevelText();
                     maxHeight = 0f;
                 }
@@ -176,7 +179,6 @@ namespace Player
                 heightText.text = height.ToString();
                 if (height > maxHeight) {
                     maxHeight = height;
-                    maxHeightText.text = height.ToString();
                 }
             }
 
@@ -199,10 +201,12 @@ namespace Player
             if (pogoMode)
             {
                 appearance.ChangeAvatar(pogoJamieObj, .3f);
+                originalCamRadius = camRadius;
             }
             else
             {
                 appearance.ChangeAvatar(jamieObj, .25f);
+                camRadius = originalCamRadius;
             }
         }
 
