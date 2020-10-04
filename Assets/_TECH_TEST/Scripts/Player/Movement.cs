@@ -31,6 +31,8 @@ namespace Player
         [SerializeField] GameObject jamieObj;
         [SerializeField] GameObject pogoJamieObj;
         [SerializeField] AudioClip targetSound;
+        [SerializeField] AudioClip sparkleSound;
+        [SerializeField] ParticleSystem sparkleParticle;
 
         bool oldIsGrounded = true;
         bool oldPogoMode = false;
@@ -239,10 +241,20 @@ namespace Player
                     break;
                 case PogoBounceState.Mega:
                     sounds.GodBounce();
+                    StartCoroutine(SparkleAfterDelay(.5f));
                     break;
             }
             bounceState = PogoBounceState.Neutral;
         }
+
+        IEnumerator SparkleAfterDelay(float delay) {
+            yield return new WaitForSeconds(delay);
+            sparkleParticle.Play();
+            yield return new WaitForSeconds(.3f);
+            sounds.PlaySound(sparkleSound, 3f);
+        }
+
+        
 
 
         [Header("julian new mov")]
