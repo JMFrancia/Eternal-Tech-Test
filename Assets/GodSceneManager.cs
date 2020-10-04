@@ -5,10 +5,14 @@ using UnityEngine;
 public class GodSceneManager : MonoBehaviour
 {
     [SerializeField] GameObject fakePlayer;
+    [SerializeField] CameraManager cameraManager;
+
+    [Header("Cloud scene")]
+    [SerializeField] Camera godCam;
+    [SerializeField] ParticleSystem godPS;
+    [SerializeField] Transform cloudParent;
     [SerializeField] Transform godStartingPos;
     [SerializeField] Transform godFinalPos;
-    [SerializeField] CameraManager cameraManager;
-    [SerializeField] Camera godCam;
 
     [Header("Entry scene")]
     [SerializeField] Camera entryCam;
@@ -30,6 +34,7 @@ public class GodSceneManager : MonoBehaviour
 
     int shakeCounter = 0;
     bool shakeEffect = true;
+    Vector3 originalCloudPos;
 
     private void Awake()
     {
@@ -38,6 +43,7 @@ public class GodSceneManager : MonoBehaviour
         ambientSrc = audioSources[1];
         ambientSrc.clip = ambientWindSound;
         ambientSrc.loop = true;
+        originalCloudPos = cloudParent.localPosition;
     }
 
     private void Update()
@@ -50,6 +56,7 @@ public class GodSceneManager : MonoBehaviour
                 fakePlayer.transform.position += UnityEngine.Random.insideUnitSphere * entryShakeDist;
             }
         }
+        godPS.transform.Rotate(0f, 0f, -.25f);
     }
 
     public void BeginSequence(Action callback) {
@@ -59,6 +66,7 @@ public class GodSceneManager : MonoBehaviour
 
     IEnumerator PlaySequence()
     {
+        //Entry sequence
         shakeEffect = true;
         entryPS.Play();
         mainSrc.PlayOneShot(wooshingWindSound);
@@ -71,7 +79,9 @@ public class GodSceneManager : MonoBehaviour
         shakeEffect = false;
         entryPS.Stop();
 
+        //God sequence
         fakePlayer.transform.position = godStartingPos.position;
+        LeanTween.moveLocalZ(cloudParent.gameObject, 223f, 3f);
         LTSeq sequence = LeanTween.sequence();
         sequence.append(LeanTween.move(fakePlayer, godFinalPos, 1.5f).setEase(LeanTweenType.easeOutCirc));
         sequence.append(LeanTween.move(fakePlayer, godStartingPos, 1.5f).setEase(LeanTweenType.easeInCirc).setOnComplete(EndSequence));   
@@ -80,6 +90,7 @@ public class GodSceneManager : MonoBehaviour
     void EndSequence() {
         mainSrc.Stop();
         ambientSrc.Stop();
+        cloudParent.localPosition = originalCloudPos;
         callback.Invoke();
         Debug.Log("Sequence complete");
     }
