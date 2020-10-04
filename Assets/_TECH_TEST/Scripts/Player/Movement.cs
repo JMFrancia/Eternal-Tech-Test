@@ -9,10 +9,12 @@ namespace Player
 
     public class Movement : Attribute<Controller>//, ISpawnable
     {
+
+        [HideInInspector]
         public bool pogoMode { get; private set; } = false;
 
         [Header("Pogo")]
-
+        [SerializeField] bool testGodBounce = false;
         [SerializeField] Text pogoBounceLevelText;
         [SerializeField] float basePogoVel = .5f;
         [SerializeField] float pogoVelMult = 1.3f;
@@ -108,8 +110,8 @@ namespace Player
                 Debug.Log("Good bounce!");
                 bounceState = PogoBounceState.Good;
 
-                if (bounceCount == godBounce) {
-                    basePogoVel *= 10f;
+                if (bounceCount == godBounce || testGodBounce) {
+                    basePogoVel *= testGodBounce ? 100f : 10f;
                     bounceState = PogoBounceState.Mega;
                     StartCoroutine(PlayGodSequence(godSequenceStartDelay));
                 }
