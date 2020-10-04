@@ -17,26 +17,29 @@ namespace Player
         [SerializeField] float pogoVelMult = 1.3f;
         [SerializeField] float pogoBounceTime = .2f;
         [SerializeField] float pogoInputWindow = .2f;
-        [SerializeField] int godBounce = 3;
+        [SerializeField] int godBounce = 7;
         [SerializeField] float godSequenceStartDelay = 1.5f;
         [SerializeField] float parachuteHeight = 10f;
         [SerializeField] bool parachuteMode = false;
         [SerializeField] float parachuteGravityMultiplier = .9f;
 
         [SerializeField] Text heightText;
+        [SerializeField] Text maxHeightText;
         [SerializeField] GodSceneManager godSceneManager;
         [SerializeField] CameraManager cameraManager;
         [SerializeField] Transform world;
         [SerializeField] GameObject jamieObj;
         [SerializeField] GameObject pogoJamieObj;
+        [SerializeField] AudioClip targetSound;
 
         bool oldIsGrounded = true;
         bool oldPogoMode = false;
         int bounceCount = 0;
-        int maxBounceCount = 3;
+        int maxBounceCount = 2;
         float pogoTime = 0f;
         float groundStart;
         float groundEnd;
+        float maxHeight;
         bool waitingOnBounce = false;
         bool bounced = false;
         Vector3 lastGroundedPos; 
@@ -73,6 +76,7 @@ namespace Player
             if (pogoMode && other.CompareTag("PogoTarget")) {
                 Destroy(other.gameObject);
                 maxBounceCount++;
+                sounds.PlaySound(targetSound, 1f);
                 UpdatePogoBounceLevelText();
                 Debug.Log("Max bounce increased!");
             }
@@ -111,15 +115,20 @@ namespace Player
                     StopCoroutine(pogoCoroutine);
                     PogoBounce();
                 }
-                bounceCount = Mathf.Min(bounceCount + 1, maxBounceCount);
-                UpdatePogoBounceLevelText();
+                int newBounceCount = Mathf.Min(bounceCount + 1, maxBounceCount);
+                if (newBounceCount != bounceCount)
+                {
+                    bounceCount = newBounceCount;
+                    UpdatePogoBounceLevelText();
+                    maxHeight = 0f;
+                }
 
             }
             else {
                 Debug.Log("Bad bounce");
                 bounceState = PogoBounceState.Bad;
-                bounceCount = Mathf.Max(bounceCount - 1, 0);
-                UpdatePogoBounceLevelText();
+                //bounceCount = Mathf.Max(bounceCount - 1, 0);
+                //UpdatePogoBounceLevelText();
             }
         }
 
@@ -163,7 +172,12 @@ namespace Player
             if (pogoMode)
             {
                 pogoTime += Time.deltaTime;
-                heightText.text = (transform.position - lastGroundedPos).magnitude.ToString();
+                float height = (transform.position - lastGroundedPos).magnitude;
+                heightText.text = height.ToString();
+                if (height > maxHeight) {
+                    maxHeight = height;
+                    maxHeightText.text = height.ToString();
+                }
             }
 
             if (bounced && (pogoTime - groundEnd) > pogoInputWindow) {
