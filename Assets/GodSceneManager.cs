@@ -18,14 +18,26 @@ public class GodSceneManager : MonoBehaviour
     [SerializeField] int shakeFreq = 3;
     [SerializeField] float entrySequenceTime = 2f;
 
+    [Header("Sounds")]
+    [SerializeField] AudioClip ambientWindSound;
+    [SerializeField] AudioClip wooshingWindSound;
+    [SerializeField] AudioClip godSound;
+
+    AudioSource mainSrc;
+    AudioSource ambientSrc;
+
     Action callback;
 
     int shakeCounter = 0;
     bool shakeEffect = true;
 
-    private void Start()
+    private void Awake()
     {
-        //BeginSequence();
+        AudioSource[] audioSources = GetComponents<AudioSource>();
+        mainSrc = audioSources[0];
+        ambientSrc = audioSources[1];
+        ambientSrc.clip = ambientWindSound;
+        ambientSrc.loop = true;
     }
 
     private void Update()
@@ -49,8 +61,12 @@ public class GodSceneManager : MonoBehaviour
     {
         shakeEffect = true;
         entryPS.Play();
+        mainSrc.PlayOneShot(wooshingWindSound);
+        ambientSrc.Play();
         cameraManager.Set(entryCam);
         yield return new WaitForSeconds(entrySequenceTime);
+        mainSrc.Stop();
+        mainSrc.PlayOneShot(godSound);
         cameraManager.Set(godCam);
         shakeEffect = false;
         entryPS.Stop();
@@ -62,6 +78,8 @@ public class GodSceneManager : MonoBehaviour
     }
 
     void EndSequence() {
+        mainSrc.Stop();
+        ambientSrc.Stop();
         callback.Invoke();
         Debug.Log("Sequence complete");
     }

@@ -59,6 +59,5 @@ namespace Player
         {
             PlaySound(megaBoing, 1f);
         }
-
     }
 }

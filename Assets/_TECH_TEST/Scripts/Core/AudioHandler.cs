@@ -13,6 +13,8 @@ public abstract class AudioHandler : MonoBehaviour
     //my mixer group
     public AudioMixerGroup mixerGroup;
 
+    AudioSource ambientAudioSource;
+
     protected virtual void Awake()
     {
         myAudioSource = GetComponent<AudioSource>();
@@ -21,6 +23,9 @@ public abstract class AudioHandler : MonoBehaviour
         {
             myAudioSource = gameObject.AddComponent<AudioSource>();
         }
+
+        ambientAudioSource = gameObject.AddComponent<AudioSource>();
+        ambientAudioSource.loop = true;
 
         //set mixergroup 
         if(myAudioSource.outputAudioMixerGroup == null && mixerGroup != null)
@@ -65,5 +70,16 @@ public abstract class AudioHandler : MonoBehaviour
         float randomPitch = Random.Range(min, max);
         myAudioSource.pitch = randomPitch;
     }
+
+    //Loop an ambient sound indefinitely
+    public virtual void PlayAmbientLoop(AudioClip ambientSound) {
+        ambientAudioSource.clip = ambientSound;
+        ambientAudioSource.Play();
+    }
+
+    public virtual void StopAmbientLoop() {
+        ambientAudioSource.Stop();
+    }
+
 }
 
