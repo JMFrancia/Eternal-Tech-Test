@@ -6,6 +6,8 @@ TagManager:
   tags:
   - World
   - PogoTarget
+  - Fire
+  - PogoCollectible
   layers:
   - Default
   - TransparentFX

@@ -64,6 +64,12 @@ namespace Player
 
         private void OnTriggerEnter(Collider other)
         {
+            if (other.CompareTag("PogoCollectible")) {
+                pogoMode = true;
+                Destroy(other.gameObject);
+                return;
+            }
+
             if (pogoMode && other.CompareTag("PogoTarget")) {
                 Destroy(other.gameObject);
                 maxBounceCount++;
