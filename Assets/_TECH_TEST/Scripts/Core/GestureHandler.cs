@@ -362,7 +362,7 @@ public class GestureHandler : Singleton<GestureHandler>
             else
             {
                 ClearTouches();
-                EventManager.TriggerEvent("ReleaseTouch", touchLifetime);
+                EventManager.TriggerEvent(Constants.EventNames.RELEASE_TOUCH, touchLifetime);
                 touchLifetime = 0f;
             }
         }
@@ -373,7 +373,7 @@ public class GestureHandler : Singleton<GestureHandler>
 
         if (GetTap())
         {
-            EventManager.TriggerEvent("Tap");
+            EventManager.TriggerEvent(Constants.EventNames.TAP);
         }
     }
 

@@ -7,6 +7,10 @@ namespace Player
 
     public class Avatar : MonoBehaviour
     {
+
+        //For avatar w/ no animations
+        public bool StaticAvatar { get; private set; } = false;
+
         public enum AnimationState
         {
             Movement,
@@ -43,6 +47,7 @@ namespace Player
         void Awake()
         {
             animator = GetComponent<Animator>();
+            StaticAvatar = (animator == null);
         }
 
         void Start()
@@ -63,23 +68,31 @@ namespace Player
 
         public void SetAnimationState(AnimationState state, bool self = false)
         {
+            if (StaticAvatar)
+                return;
             animationState = state;
         }
 
         public void SetMoveState(MoveState state, bool self = false)
         {
+            if (StaticAvatar)
+                return;
             SetAnimationState(AnimationState.Movement);
             moveState = state;
         }
 
         public void SetPose(string pose, bool self = false)
         {
+            if (StaticAvatar)
+                return;
             SetAnimationState(AnimationState.Pose);
             poseState = pose;
         }
 
         public void ClearPose()
         {
+            if (StaticAvatar)
+                return;
             if (!string.IsNullOrEmpty(previousPoseState))
                 animator.SetBool(previousPoseState, false);
             if (!string.IsNullOrEmpty(poseState))
@@ -90,6 +103,8 @@ namespace Player
 
         void EvaluateAnimationState()
         {
+            if (StaticAvatar)
+                return;
             if (previousAnimationState != animationState)
             {
                 if (previousAnimationState == AnimationState.Movement)

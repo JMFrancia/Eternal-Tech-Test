@@ -19,7 +19,7 @@ namespace Player
         [SerializeField] float pogoVelMult = 1.3f;
         [SerializeField] float pogoBounceTime = .2f;
         [SerializeField] float pogoInputWindow = .2f;
-        [SerializeField] int godBounce = 8;
+        [SerializeField] int godBounce = 7;
         [SerializeField] float godSequenceStartDelay = 1.5f;
         [SerializeField] float dropOffHeight = 10f;  //Parachute mode scrapped
         [SerializeField] bool parachuteMode = false;
@@ -39,7 +39,7 @@ namespace Player
         bool oldIsGrounded = true;
         bool oldPogoMode = false;
         int bounceCount = 0;
-        int maxBounceCount = 2;
+        int maxBounceCount = 1;
         float pogoTime = 0f;
         float groundStart;
         float groundEnd;
@@ -80,7 +80,7 @@ namespace Player
             }
 
             if (pogoMode && other.CompareTag(Constants.TagNames.POGO_TARGET)) {
-                Destroy(other.gameObject);
+                PogoTargetManager.Instance.NextTarget();
                 maxBounceCount++;
                 sounds.PlaySound(targetSound, 1f);
                 UpdatePogoBounceLevelText();
@@ -184,9 +184,11 @@ namespace Player
             waitingOnBounce = false;
             bounced = false;
             oldPogoMode = pogoMode;
+
             if (pogoMode)
             {
                 appearance.ChangeAvatar(pogoJamieObj, .3f);
+                PogoTargetManager.Instance.SetActive(true);
                 originalCamRadius = camRadius;
                 pogoBounceLevelText.transform.parent.gameObject.SetActive(true);
                 UpdatePogoBounceLevelText();
@@ -196,6 +198,7 @@ namespace Player
                 appearance.ChangeAvatar(jamieObj, .25f);
                 camRadius = originalCamRadius;
                 pogoBounceLevelText.transform.parent.gameObject.SetActive(false);
+                PogoTargetManager.Instance.SetActive(false);
             }
         }
 
@@ -340,6 +343,7 @@ namespace Player
             defaultGravityStrength = gravStrength;
 
             //print(GameDataSaveSystem.Instance.lastAtomSpawnTimestamp);
+            PogoTargetManager.Instance.SetActive(false);
 
         }
 

@@ -1,48 +1,64 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 
+/*
+ * Manages pogo targets, setting their heights and controlling which one is active
+ */
 public class PogoTargetManager : MonoBehaviour
 {
+    public static PogoTargetManager Instance { get; private set; }
 
-    public static PogoTarget ActiveTarget { get; private set; }
+    PogoTarget activeTarget;
+    PogoTarget[] targets;
 
     float baseHeight = 8f;
-
-    List<PogoTarget> targets;
-    CenterOfMass world;
+    int targetCounter = 0;
     
     private void Awake()
     {
-        world = GameObject.FindGameObjectWithTag("World").GetComponent<CenterOfMass>();
-        targets = new List<PogoTarget>(GetComponentsInChildren<PogoTarget>());
-
-        for (int n = 0; n < targets.Count; n++) {
-            targets[n].transform.position += (targets[n].transform.position - world.transform.position).normalized * (baseHeight * Mathf.Pow(1.6f, n + 2));
+        if (Instance == null)
+        {
+            Instance = this;
         }
-
-        //targets.Sort(CompareTargetHeight);
-
-        ActiveTarget = targets[0];
-        for (int n = 1; n < targets.Count; n++) {
-            targets[n].gameObject.SetActive(false);
+        else {
+            Destroy(this);
         }
     }
 
     public void NextTarget() {
-        targets.RemoveAt(0);
-        if (targets.Count > 0)
+        activeTarget.gameObject.SetActive(false);
+        activeTarget = targets[++targetCounter % targets.Length];
+        activeTarget.gameObject.SetActive(true);
+    }
+
+    public void SetActive(bool active) {
+        //Lazy load used to solve race condition. Not ideal, but good enough for now
+        if (targets == null) {
+            Initialize();
+        }
+
+        Debug.Log("Set Active called: " + active);
+
+        if (active)
         {
-            ActiveTarget = targets[0];
-            ActiveTarget.gameObject.SetActive(true);
+            Debug.Log("Activating " + targets[0]);
+            activeTarget = targets[0];
+            activeTarget.gameObject.SetActive(true);
+        }
+        else if(activeTarget != null) { 
+            activeTarget.gameObject.SetActive(false);
         }
     }
 
-    int CompareTargetHeight(PogoTarget a, PogoTarget b) {
+    void Initialize()
     {
-            float heightA = (a.transform.position - world.transform.position).magnitude;
-            float heightB = (b.transform.position - world.transform.position).magnitude;
-            return heightA.CompareTo(heightB);
+        targets = GetComponentsInChildren<PogoTarget>();
+
+        Vector3 worldCenter = GameObject.FindGameObjectWithTag("World").GetComponent<CenterOfMass>().transform.position;
+        for (int n = 0; n < targets.Length; n++)
+        {
+            targets[n].transform.position += (targets[n].transform.position - worldCenter).normalized * (baseHeight * Mathf.Pow(1.6f, n + 2));
+            targets[n].gameObject.SetActive(false);
+        }
     }
-}
 }

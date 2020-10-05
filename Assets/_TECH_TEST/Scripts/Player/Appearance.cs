@@ -68,7 +68,8 @@ namespace Player
 
             controller.Movement.Sub = characterObject.transform; // Update movement sub-transform with character
 
-            SetAnimator();
+            if(!avatar.StaticAvatar)
+                SetAnimator();
         }
 
         // Bind to animator controller attached to prefab
