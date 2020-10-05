@@ -2,18 +2,15 @@
 using System.Collections;
 using UnityEngine;
 
-public class GodSceneManager : MonoBehaviour
+
+/*
+ * Manages the cut scene when you hit the highest bounce
+ */
+public class GodCutsceneManager : MonoBehaviour
 {
     [SerializeField] GameObject fakePlayer;
     [SerializeField] CameraManager cameraManager;
-
-    [Header("Cloud scene")]
-    [SerializeField] Camera godCam;
-    [SerializeField] ParticleSystem godPS;
-    [SerializeField] Transform cloudParent;
-    [SerializeField] Transform godStartingPos;
-    [SerializeField] Transform godFinalPos;
-
+       
     [Header("Entry scene")]
     [SerializeField] Camera entryCam;
     [SerializeField] Transform entryPosition;
@@ -21,6 +18,13 @@ public class GodSceneManager : MonoBehaviour
     [SerializeField] float entryShakeDist = .5f;
     [SerializeField] int shakeFreq = 3;
     [SerializeField] float entrySequenceTime = 2f;
+
+    [Header("God scene")]
+    [SerializeField] Camera godCam;
+    [SerializeField] ParticleSystem haloPS;
+    [SerializeField] Transform cloudParent;
+    [SerializeField] Transform godStartingPos;
+    [SerializeField] Transform godFinalPos;
 
     [Header("Sounds")]
     [SerializeField] AudioClip ambientWindSound;
@@ -56,15 +60,15 @@ public class GodSceneManager : MonoBehaviour
                 fakePlayer.transform.position += UnityEngine.Random.insideUnitSphere * entryShakeDist;
             }
         }
-        godPS.transform.Rotate(0f, 0f, -.25f);
+        haloPS.transform.Rotate(0f, 0f, -.25f);
     }
 
-    public void BeginSequence(Action callback) {
-        StartCoroutine(PlaySequence());
+    public void BeginCutscene(Action callback) {
+        StartCoroutine(PlayCutscene());
         this.callback = callback;
     }
 
-    IEnumerator PlaySequence()
+    IEnumerator PlayCutscene()
     {
         //Entry sequence
         shakeEffect = true;
@@ -92,6 +96,5 @@ public class GodSceneManager : MonoBehaviour
         ambientSrc.Stop();
         cloudParent.localPosition = originalCloudPos;
         callback.Invoke();
-        Debug.Log("Sequence complete");
     }
 }

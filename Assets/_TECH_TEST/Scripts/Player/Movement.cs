@@ -25,7 +25,7 @@ namespace Player
 
         [SerializeField] Text heightText; //For testing
         [SerializeField] Text pogoBounceLevelText;
-        [SerializeField] GodSceneManager godSceneManager;
+        [SerializeField] GodCutsceneManager godSceneManager;
         [SerializeField] CameraManager cameraManager;
         [SerializeField] Transform world;
         [SerializeField] GameObject jamieObj;
@@ -131,7 +131,7 @@ namespace Player
             yield return new WaitForSeconds(delay);
             godSceneManager.gameObject.SetActive(true);
             basePogoVel /= 10f;
-            godSceneManager.BeginSequence((System.Action)(() => {
+            godSceneManager.BeginCutscene((System.Action)(() => {
                 localVel.y = 5f;
                 //parachuteMode = true;
                 gameObject.SetActive(true);
