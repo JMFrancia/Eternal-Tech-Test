@@ -37,11 +37,8 @@ public class PogoTargetManager : MonoBehaviour
             Initialize();
         }
 
-        Debug.Log("Set Active called: " + active);
-
         if (active)
         {
-            Debug.Log("Activating " + targets[0]);
             activeTarget = targets[0];
             activeTarget.gameObject.SetActive(true);
         }

@@ -6,7 +6,7 @@ using UnityEngine;
 /*
  * Manages the cut scene when you hit the highest bounce
  */
-public class GodCutsceneManager : MonoBehaviour
+public class GodSceneManager : MonoBehaviour
 {
     [SerializeField] GameObject fakePlayer;
     [SerializeField] CameraManager cameraManager;
