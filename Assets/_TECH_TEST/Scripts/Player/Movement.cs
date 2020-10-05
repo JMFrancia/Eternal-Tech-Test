@@ -145,7 +145,7 @@ namespace Player
             basePogoVel /= 10f;
             godSceneManager.BeginSequence((System.Action)(() => {
                 localVel.y = 5f;
-                parachuteMode = true;
+                //parachuteMode = true;
                 gameObject.SetActive(true);
                 cameraManager.Set(mainCam);
                 Debug.Log("setting main cam");
@@ -206,11 +206,14 @@ namespace Player
             {
                 appearance.ChangeAvatar(pogoJamieObj, .3f);
                 originalCamRadius = camRadius;
+                pogoBounceLevelText.transform.parent.gameObject.SetActive(true);
+                UpdatePogoBounceLevelText();
             }
             else
             {
                 appearance.ChangeAvatar(jamieObj, .25f);
                 camRadius = originalCamRadius;
+                pogoBounceLevelText.transform.parent.gameObject.SetActive(false);
             }
         }
 
@@ -323,6 +326,9 @@ namespace Player
             rb = GetComponent<Rigidbody>();
             appearance = GetComponent<Appearance>();
             sounds = GetComponent<Sounds>();
+
+            pogoBounceLevelText.transform.parent.gameObject.SetActive(false);
+            heightText.transform.parent.gameObject.SetActive(false);
         }
 
         CenterOfMass[] allCentersOfMass;
