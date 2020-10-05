@@ -9,8 +9,6 @@ public static class Constants
         public const string TAP = "Tap";
     }
 
-    public static class LayerNames { }
-
     public static class TagNames {
         public const string POGO_TARGET = "PogoTarget";
         public const string POGO_COLLECTIBLE = "PogoCollectible";
