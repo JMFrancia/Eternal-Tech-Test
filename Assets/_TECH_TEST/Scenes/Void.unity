@@ -22162,7 +22162,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &946337802
 Transform:
   m_ObjectHideFlags: 0
@@ -58126,9 +58126,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3485179569051583531}
-  m_LocalRotation: {x: -0.46055457, y: -0.000000032604397, z: -0.0000000039614774,
-    w: 0.8876314}
-  m_LocalPosition: {x: -358.79877, y: 2675.1453, z: 136.5}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -360.49878, y: 2662.8452, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 326808342}
@@ -58158,8 +58157,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.1
-  far clip plane: 1000
-  field of view: 90
+  far clip plane: 5000
+  field of view: 40
   orthographic: 0
   orthographic size: 10
   m_Depth: -1

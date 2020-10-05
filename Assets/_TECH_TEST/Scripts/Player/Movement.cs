@@ -122,7 +122,7 @@ namespace Player
                     PogoBounce();
                 }
                 int newBounceCount = Mathf.Min(bounceCount + 1, maxBounceCount);
-                if (newBounceCount != bounceCount)
+                if (newBounceCount > bounceCount)
                 {
                     bounceCount = newBounceCount;
                     camRadius *= 1.1f;
@@ -134,8 +134,6 @@ namespace Player
             else {
                 Debug.Log("Bad bounce");
                 bounceState = PogoBounceState.Bad;
-                //bounceCount = Mathf.Max(bounceCount - 1, 0);
-                //UpdatePogoBounceLevelText();
             }
         }
 
