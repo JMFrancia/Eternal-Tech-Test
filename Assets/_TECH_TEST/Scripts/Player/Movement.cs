@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Player
@@ -53,6 +51,7 @@ namespace Player
         Appearance appearance;
         Sounds sounds;
         PogoBounceState bounceState = PogoBounceState.Neutral;
+        GameObject pogoCollectible;
 
         enum PogoBounceState {
             Good,
@@ -75,6 +74,8 @@ namespace Player
         {
             if (other.CompareTag(Constants.TagNames.POGO_COLLECTIBLE)) {
                 pogoMode = true;
+                pogoCollectible = other.gameObject;
+                pogoCollectible.SetActive(false);
                 Destroy(other.gameObject);
                 return;
             }
@@ -199,6 +200,7 @@ namespace Player
                 camRadius = originalCamRadius;
                 pogoBounceLevelText.transform.parent.gameObject.SetActive(false);
                 PogoTargetManager.Instance.SetActive(false);
+                pogoCollectible.SetActive(true);
             }
         }
 
