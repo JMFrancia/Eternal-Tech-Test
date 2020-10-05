@@ -14,19 +14,19 @@ namespace Player
         public bool pogoMode { get; private set; } = false;
 
         [Header("Pogo")]
-        [SerializeField] bool testGodBounce = false;
-        [SerializeField] Text pogoBounceLevelText;
+        [SerializeField] bool testGodBounce = false; //When active, god bounce will occur on first good bounce
         [SerializeField] float basePogoVel = .5f;
         [SerializeField] float pogoVelMult = 1.3f;
         [SerializeField] float pogoBounceTime = .2f;
         [SerializeField] float pogoInputWindow = .2f;
-        [SerializeField] int godBounce = 7;
+        [SerializeField] int godBounce = 8;
         [SerializeField] float godSequenceStartDelay = 1.5f;
-        [SerializeField] float parachuteHeight = 10f;
+        [SerializeField] float dropOffHeight = 10f;  //Parachute mode scrapped
         [SerializeField] bool parachuteMode = false;
         [SerializeField] float parachuteGravityMultiplier = .9f;
 
-        [SerializeField] Text heightText;
+        [SerializeField] Text heightText; //For testing
+        [SerializeField] Text pogoBounceLevelText;
         [SerializeField] GodSceneManager godSceneManager;
         [SerializeField] CameraManager cameraManager;
         [SerializeField] Transform world;
@@ -63,23 +63,23 @@ namespace Player
 
         private void OnEnable()
         {
-            EventManager.StartListening("ReleaseTouch", OnReleased);
+            EventManager.StartListening(Constants.EventNames.RELEASE_TOUCH, OnTouchReleased);
         }
 
         private void OnDisable()
         {
-            EventManager.StopListening("ReleaseTouch", OnReleased);
+            EventManager.StopListening(Constants.EventNames.RELEASE_TOUCH, OnTouchReleased);
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("PogoCollectible")) {
+            if (other.CompareTag(Constants.TagNames.POGO_COLLECTIBLE)) {
                 pogoMode = true;
                 Destroy(other.gameObject);
                 return;
             }
 
-            if (pogoMode && other.CompareTag("PogoTarget")) {
+            if (pogoMode && other.CompareTag(Constants.TagNames.POGO_TARGET)) {
                 Destroy(other.gameObject);
                 maxBounceCount++;
                 sounds.PlaySound(targetSound, 1f);
@@ -88,23 +88,12 @@ namespace Player
             }
         }
 
-        void OnReleased(float timeHeld) {
+        void OnTouchReleased(float timeHeld) {
             if (!pogoMode)
                 return;
-            Debug.Log("Release: " + timeHeld);
 
-            //Guessing intention was direction
-            if (timeHeld > 1f) {
-                return;
-            }
+            bool goodRelease = (groundEnd - pogoInputWindow) <= pogoTime && pogoTime <= (groundEnd + pogoInputWindow);
 
-            float timeStart = pogoTime - timeHeld;
-            float timeReleased = pogoTime;
-
-            bool goodStart = (groundStart - pogoInputWindow) <= timeStart && timeStart <= (groundStart + pogoInputWindow);
-            bool goodRelease = (groundEnd - pogoInputWindow) <= timeReleased && timeReleased <= (groundEnd + pogoInputWindow);
-
-            //if (goodStart && goodRelease)
             if(goodRelease)
             {
                 Debug.Log("Good bounce!");
@@ -146,13 +135,8 @@ namespace Player
                 //parachuteMode = true;
                 gameObject.SetActive(true);
                 cameraManager.Set(mainCam);
-                Debug.Log("setting main cam");
                 godSceneManager.gameObject.SetActive(false);
-                Vector3 parachutePos = lastGroundedPos + (lastGroundedPos - world.position).normalized * parachuteHeight;
-                Debug.Log("Caculated parachute pos: " + parachutePos);
-                Debug.Log("moving to: " + parachutePos);
-                transform.position = parachutePos;
-
+                transform.position = lastGroundedPos + (lastGroundedPos - world.position).normalized * dropOffHeight; 
                 pogoMode = false;
                 ResetPogo();
             }));
