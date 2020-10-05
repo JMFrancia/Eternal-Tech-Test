@@ -142,7 +142,7 @@ namespace Player
         }
 
         void UpdatePogoBounceLevelText() {
-            pogoBounceLevelText.text = $"{bounceCount} / {maxBounceCount}";
+            pogoBounceLevelText.text = (bounceCount == godBounce) ? "MAX" : $"{bounceCount} / {maxBounceCount}";
         }
 
         void OnPogoLaunched() {
